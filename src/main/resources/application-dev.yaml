@@ -1,23 +1,27 @@
 server:
   port: 8090
-  forward-headers-strategy: native
+  forward-headers-strategy: native #处理X-Forwarded- For标头的策略
   compression:
-    enabled: true
+    enabled: true #是否开启压缩功能，简单理解为将传输的json压小
 spring:
+  mvc:
+    pathmatch:
+      use-suffix-pattern: true
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
   output:
     ansi:
-      enabled: always
+      enabled: always # 配置ANSI输出,控制字符样式，大可不必
   devtools:
     restart:
       eanbled: true
+    add-properties: false #是否启用开发属性默认值，生产环境是禁用的（部署后用户访问的环境）
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
 
     # H2 database configuration.
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:file:~/halo-dev/db/halo;AUTO_SERVER=TRUE
+    url: jdbc:h2:file:~/.halo-dev/db/halo;AUTO_SERVER=TRUE
     username: admin
     password: 123456
 
@@ -30,30 +34,31 @@ spring:
   h2:
     console:
       settings:
-        web-allow-others: true
-      path: /h2-console
-      enabled: true
+        web-allow-others: true #是否启用远程访问
+      path: /h2-console #浏览器地址栏输入对应路径，就可以访问h2数据库详细操作
+      enabled: true #是否启用控制台
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: update # 每次运行程序，没有表格会新建表格，表内有数据不会清空，只会更新（自动建表就是这个 ddl-auto 啦）
     show-sql: true
     open-in-view: false
   flyway:
-    enabled: false
+    enabled: false #数据库版本管理，可同步数据库，resources下的migration就是，事务回滚只对DML有用
   servlet:
-    multipart:
-      max-file-size: 10240MB
-      max-request-size: 10240MB
+    multipart: #上载文件的中间位置。 也就是系统临时缓存目录。
+      max-file-size: 10240MB #档案大小上限。
+      max-request-size: 10240MB #最大请求大小 。
+      location: /tmp/run.halo.app
   cache:
     type: none
 management:
-  endpoints:
+  endpoints: #实行器特性 监控、管理
     web:
-      base-path: /api/admin/actuator
+      base-path: /api/admin/actuator #Web端点的基本路径
       exposure:
-        include: [ 'httptrace', 'metrics','env','logfile','health' ]
+        include: [ 'httptrace', 'metrics','env','logfile','health' ]#应当包含的端点ID，或全部包含的（这样 /actuator/）
 logging:
-  level:
+  level: #日志级别严重性映射
     run.halo.app: DEBUG
     org.hibernate: INFO
     org.hibernate.type.descriptor.sql.BasicBinder: INFO
@@ -63,7 +68,7 @@ logging:
 
 springfox:
   documentation:
-    enabled: true
+    enabled: true  #在生产环境下，我们需要关闭swagger配置，避免暴露接口的这种危险行为
 
 halo:
   auth-enabled: true
